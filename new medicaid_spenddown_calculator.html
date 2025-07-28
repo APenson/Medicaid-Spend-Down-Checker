@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicaid Spend Down Educational Calculator - Long-Term Care Planning Tool</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2em;
+        }
+        .header p {
+            margin: 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+        .disclaimer h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .tool-section {
+            background: white;
+            margin: 25px 0;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tool-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.4em;
+            border-left: 4px solid #27ae60;
+            padding-left: 15px;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #27ae60;
+            outline: none;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            margin-left: 10px;
+        }
+        .results {
+            background: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        .results.show {
+            display: block;
+        }
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 3px solid #27ae60;
+        }
+        .result-item h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .result-item .amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .coverage-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .info-box {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        .alert {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: #155724;
+        }
+        .input-hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .btn {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Medicaid Spend Down Educational Calculator</h1>
+        <p>Understanding Long-Term Care Asset and Income Planning</p>
+    </div>
+
+    <div class="disclaimer">
+        <h3>⚠️ Important Educational Disclaimer</h3>
+        <p><strong>This tool is for educational purposes only and provides general information about Medicaid spend down concepts.</strong> It does not replace official Medicaid resources, legal advice, or professional financial planning. Actual Medicaid eligibility, spend down requirements, and allowable expenses vary significantly by state and individual circumstances.</p>
+        <p><strong>Medicaid rules are complex and change frequently.</strong> Asset limits, income limits, lookback periods, and allowable expenses differ by state. Some states have expanded Medicaid programs with different rules.</p>
+        <p><strong>For official Medicaid information:</strong> Contact your state Medicaid office, visit <a href="https://www.medicaid.gov" target="_blank">Medicaid.gov</a>, or consult with a qualified elder law attorney or certified financial planner. Always verify current regulations with official sources before making financial decisions.</p>
+    </div>
+
+    <div class="tool-section">
+        <h3>Medicaid Spend Down Assessment Tool</h3>
+        <p>Enter your financial information below to understand potential spend down scenarios. This educational tool helps you learn about Medicaid asset and income limits and explores theoretical spend down strategies.</p>
+
+        <form id="medicaidForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="state">State of Residence:</label>
+                    <select id="state" required>
+                        <option value="">Select your state</option>
+                        <option value="expansion">Medicaid Expansion State</option>
+                        <option value="non-expansion">Non-Expansion State</option>
+                        <option value="specific">I know my state's specific limits</option>
+                    </select>
+                    <div class="input-hint">Medicaid rules vary significantly by state</div>
+                </div>
+                <div class="form-group">
+                    <label for="applicantType">Applicant Status:</label>
+                    <select id="applicantType" required>
+                        <option value="">Select status</option>
+                        <option value="single">Single individual</option>
+                        <option value="married-both">Married couple (both applying)</option>
+                        <option value="married-one">Married (one spouse applying)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="monthlyIncome">Total Monthly Income:</label>
+                    <input type="number" id="monthlyIncome" min="0" step="0.01" required>
+                    <div class="input-hint">Include Social Security, pensions, wages, etc.</div>
+                </div>
+                <div class="form-group">
+                    <label for="spouseIncome">Spouse Monthly Income (if applicable):</label>
+                    <input type="number" id="spouseIncome" min="0" step="0.01">
+                    <div class="input-hint">Leave blank if single or spouse not applying</div>
+                </div>
+            </div>
+
+            <h4 style="color: #27ae60; margin-top: 30px;">Asset Information</h4>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bankAccounts">Cash & Bank Accounts:</label>
+                    <input type="number" id="bankAccounts" min="0" step="0.01" required>
+                    <div class="input-hint">Checking, savings, CDs, money market accounts</div>
+                </div>
+                <div class="form-group">
+                    <label for="investments">Investments & Securities:</label>
+                    <input type="number" id="investments" min="0" step="0.01" required>
+                    <div class="input-hint">Stocks, bonds, mutual funds, etc.</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="homeValue">Primary Residence Value:</label>
+                    <input type="number" id="homeValue" min="0" step="0.01" required>
+                    <div class="input-hint">Current market value of home</div>
+                </div>
+                <div class="form-group">
+                    <label for="homeMortgage">Mortgage Balance:</label>
+                    <input type="number" id="homeMortgage" min="0" step="0.01">
+                    <div class="input-hint">Outstanding mortgage debt</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="vehicles">Vehicle Value:</label>
+                    <input type="number" id="vehicles" min="0" step="0.01" required>
+                    <div class="input-hint">Total value of all vehicles</div>
+                </div>
+                <div class="form-group">
+                    <label for="otherAssets">Other Countable Assets:</label>
+                    <input type="number" id="otherAssets" min="0" step="0.01" required>
+                    <div class="input-hint">Second homes, rental property, etc.</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="careType">Type of Care Needed:</label>
+                    <select id="careType" required>
+                        <option value="">Select care type</option>
+                        <option value="nursing-home">Nursing home care</option>
+                        <option value="assisted-living">Assisted living</option>
+                        <option value="home-care">Home and community-based care</option>
+                        <option value="adult-day">Adult day services</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="monthlyCost">Estimated Monthly Care Cost:</label>
+                    <input type="number" id="monthlyCost" min="0" step="0.01" required>
+                    <div class="input-hint">Current or estimated monthly cost of care</div>
+                </div>
+            </div>
+
+            <button type="button" class="btn" onclick="calculateSpendDown()">Calculate Spend Down</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+        </form>
+    </div>
+
+    <div id="results" class="results">
+        <h3>Your Educational Medicaid Spend Down Assessment</h3>
+        <div id="resultsContent"></div>
+    </div>
+
+    <div class="tool-section">
+        <h3>Medicaid Eligibility Limits Quick Reference (2024)</h3>
+        
+        <div class="coverage-info">
+            <h4>Typical Asset Limits (varies by state):</h4>
+            <ul>
+                <li><strong>Single Individual:</strong> $2,000 - $2,742 in countable assets</li>
+                <li><strong>Married Couple (both applying):</strong> $3,000 - $4,113 in countable assets</li>
+                <li><strong>Community Spouse (when one spouse applies):</strong> May retain $29,724 - $148,620</li>
+                <li><strong>Home Equity Limit:</strong> $713,000 - $1,071,000 (varies by state)</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h4>Exempt (Non-Countable) Assets Generally Include:</h4>
+            <ul>
+                <li><strong>Primary residence</strong> (up to equity limits, if returning home is possible)</li>
+                <li><strong>One vehicle</strong> (used for transportation)</li>
+                <li><strong>Personal belongings</strong> and household items</li>
+                <li><strong>Burial spaces</strong> and up to $1,500 in burial funds per person</li>
+                <li><strong>Life insurance</strong> with face value under $1,500</li>
+                <li><strong>Income-producing property</strong> essential for support</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <h4>Countable Assets Generally Include:</h4>
+            <ul>
+                <li>Cash, checking and savings accounts</li>
+                <li>Certificates of deposit (CDs)</li>
+                <li>Stocks, bonds, mutual funds</li>
+                <li>Second homes or rental properties</li>
+                <li>Additional vehicles</li>
+                <li>Valuable collections (art, jewelry, etc.)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tool-section">
+        <h3>Medicaid Spend Down Strategies (Educational Overview)</h3>
+        
+        <div class="info-box">
+            <h4>Allowable Spend Down Options May Include:</h4>
+            <ul>
+                <li><strong>Medical expenses:</strong> Uncovered medical bills, dental work, vision care</li>
+                <li><strong>Home modifications:</strong> Accessibility improvements, ramps, grab bars</li>
+                <li><strong>Prepaid burial expenses:</strong> Funeral and burial arrangements</li>
+                <li><strong>Home repairs:</strong> Necessary maintenance and improvements</li>
+                <li><strong>Debt payment:</strong> Credit cards, loans, outstanding bills</li>
+                <li><strong>Vehicle purchase:</strong> Reliable transportation for spouse/family</li>
+                <li><strong>Household items:</strong> Necessary furniture, appliances</li>
+            </ul>
+        </div>
+
+        <div class="alert">
+            <h4>Important Lookback Period Warning:</h4>
+            <p><strong>Medicaid has a 5-year lookback period</strong> for most asset transfers. Transfers made within 5 years of applying may result in a penalty period where you're ineligible for benefits. Always consult with an elder law attorney before making significant financial changes.</p>
+        </div>
+
+        <div class="warning">
+            <h4>What Does NOT Count as Spend Down:</h4>
+            <ul>
+                <li>Gifts to family members (may create penalties)</li>
+                <li>Transfers for less than fair market value</li>
+                <li>Hiding or concealing assets</li>
+                <li>Creating artificial expenses</li>
+                <li>Luxury purchases that don't benefit the applicant</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tool-section">
+        <h3>State-Specific Considerations</h3>
+        
+        <div class="coverage-info">
+            <h4>Medicaid Expansion vs. Non-Expansion States:</h4>
+            <p><strong>Expansion States:</strong> Generally have higher income limits and may offer more home and community-based services.</p>
+            <p><strong>Non-Expansion States:</strong> May have stricter eligibility requirements and fewer community-based options.</p>
+        </div>
+        
+        <div class="info-box">
+            <h4>Special State Programs to Research:</h4>
+            <ul>
+                <li><strong>Miller Trusts:</strong> Income trusts for states with strict income limits</li>
+                <li><strong>PACE Programs:</strong> Programs of All-Inclusive Care for the Elderly</li>
+                <li><strong>1915(c) Waivers:</strong> Home and Community-Based Services waivers</li>
+                <li><strong>State-specific asset limits:</strong> Some states have higher limits than federal minimums</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tool-section">
+        <h3>Professional Resources and Next Steps</h3>
+        
+        <div class="info-box">
+            <h4>Recommended Professional Consultation:</h4>
+            <ul>
+                <li><strong>Elder Law Attorney:</strong> Expert in Medicaid planning and asset protection</li>
+                <li><strong>Certified Financial Planner:</strong> Specializing in long-term care planning</li>
+                <li><strong>Medicaid Planner:</strong> Professional who specializes in Medicaid applications</li>
+                <li><strong>Social Worker:</strong> Hospital or long-term care facility social workers</li>
+            </ul>
+        </div>
+        
+        <div class="coverage-info">
+            <h4>Official Resources:</h4>
+            <ul>
+                <li><strong>State Medicaid Office:</strong> Your state's Department of Health and Human Services</li>
+                <li><strong>Benefits.gov:</strong> Federal benefits eligibility screening</li>
+                <li><strong>SHIP Counseling:</strong> State Health Insurance Assistance Program</li>
+                <li><strong>Area Agency on Aging:</strong> Local aging services and resources</li>
+                <li><strong>211:</strong> Dial 2-1-1 for local social services information</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tool-section" style="text-align: center;">
+        <button class="btn btn-secondary" onclick="saveToDevice()">💾 Save This Tool to Your Device</button>
+        <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+            Click the button above to download this educational tool for offline reference
+        </p>
+    </div>
+
+    <script>
+        function calculateSpendDown() {
+            const form = document.getElementById('medicaidForm');
+            
+            // Check if all required fields are filled
+            const requiredFields = ['state', 'applicantType', 'monthlyIncome', 'bankAccounts', 'investments', 'homeValue', 'vehicles', 'otherAssets', 'careType', 'monthlyCost'];
+            let allFilled = true;
+            
+            requiredFields.forEach(field => {
+                if (!document.getElementById(field).value) {
+                    allFilled = false;
+                }
+            });
+            
+            if (!allFilled) {
+                alert('Please fill in all required fields to get your assessment.');
+                return;
+            }
+            
+            const results = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let assessment = generateSpendDownAssessment();
+            resultsContent.innerHTML = assessment;
+            results.classList.add('show');
+            
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function generateSpendDownAssessment() {
+            // Get form values
+            const state = document.getElementById('state').value;
+            const applicantType = document.getElementById('applicantType').value;
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+            const spouseIncome = parseFloat(document.getElementById('spouseIncome').value) || 0;
+            const bankAccounts = parseFloat(document.getElementById('bankAccounts').value) || 0;
+            const investments = parseFloat(document.getElementById('investments').value) || 0;
+            const homeValue = parseFloat(document.getElementById('homeValue').value) || 0;
+            const homeMortgage = parseFloat(document.getElementById('homeMortgage').value) || 0;
+            const vehicles = parseFloat(document.getElementById('vehicles').value) || 0;
+            const otherAssets = parseFloat(document.getElementById('otherAssets').value) || 0;
+            const careType = document.getElementById('careType').value;
+            const monthlyCost = parseFloat(document.getElementById('monthlyCost').value) || 0;
+            
+            let html = '';
+            
+            // Calculate countable assets
+            const homeEquity = homeValue - homeMortgage;
+            const exemptVehicleValue = Math.min(vehicles, 4650); // Typical exempt vehicle value
+            const countableVehicles = Math.max(0, vehicles - exemptVehicleValue);
+            const countableAssets = bankAccounts + investments + countableVehicles + otherAssets;
+            
+            // Determine asset limits based on applicant type
+            let assetLimit = 2000; // Default single
+            if (applicantType === 'married-both') {
+                assetLimit = 3000;
+            } else if (applicantType === 'married-one') {
+                assetLimit = 2000; // Applicant limit, spouse has separate limits
+            }
+            
+            // Income limits (approximate, varies by state)
+            let incomeLimit = 2829; // Approximate SSI limit for 2024
+            if (state === 'expansion') {
+                incomeLimit = 1732; // Approximate 138% FPL monthly for individual
+            }
+            
+            html += '<div class="result-item">';
+            html += '<h4>Asset Assessment Summary</h4>';
+            html += `<p><strong>Total Countable Assets:</strong> <span class="amount">$${countableAssets.toLocaleString()}</span></p>`;
+            html += `<p><strong>Medicaid Asset Limit:</strong> $${assetLimit.toLocaleString()}</p>`;
+            
+            const assetSpendDown = Math.max(0, countableAssets - assetLimit);
+            if (assetSpendDown > 0) {
+                html += `<p><strong>Required Asset Spend Down:</strong> <span class="amount" style="color: #e74c3c;">$${assetSpendDown.toLocaleString()}</span></p>`;
+            } else {
+                html += '<p style="color: #27ae60;"><strong>✅ Assets appear to be within Medicaid limits</strong></p>';
+            }
+            html += '</div>';
+            
+            // Income assessment
+            html += '<div class="result-item">';
+            html += '<h4>Income Assessment</h4>';
+            html += `<p><strong>Monthly Income:</strong> $${monthlyIncome.toLocaleString()}</p>`;
+            if (spouseIncome > 0) {
+                html += `<p><strong>Spouse Monthly Income:</strong> $${spouseIncome.toLocaleString()}</p>`;
+            }
+            html += `<p><strong>Approximate Income Limit:</strong> $${incomeLimit.toLocaleString()}</p>`;
+            
+            const incomeOver = Math.max(0, monthlyIncome - incomeLimit);
+            if (incomeOver > 0) {
+                html += `<p><strong>Monthly Income Over Limit:</strong> <span style="color: #e74c3c;">$${incomeOver.toLocaleString()}</span></p>`;
+                html += '<p><em>You may need to explore Miller Trust options or spend down income monthly.</em></p>';
+            } else {
+                html += '<p style="color: #27ae60;"><strong>✅ Income appears to be within limits</strong></p>';
+            }
+            html += '</div>';
+            
+            // Home equity assessment
+            if (homeEquity > 0) {
+                html += '<div class="result-item">';
+                html += '<h4>Home Equity Assessment</h4>';
+                html += `<p><strong>Home Equity:</strong> $${homeEquity.toLocaleString()}</p>`;
+                html += `<p><strong>Typical Home Equity Limit:</strong> $713,000 - $1,071,000</p>`;
+                
+                if (homeEquity > 713000) {
+                    html += '<p style="color: #f39c12;"><strong>⚠️ Home equity may exceed limits in some states</strong></p>';
+                } else {
+                    html += '<p style="color: #27ae60;"><strong>✅ Home equity appears to be within typical limits</strong></p>';
+                }
+                html += '<p><em>Home is typically exempt if you plan to return or spouse lives there.</em></p>';
+                html += '</div>';
+            }
+            
+            // Spend down recommendations
+            if (assetSpendDown > 0) {
+                html += '<div class="result-item">';
+                html += '<h4>Educational Spend Down Options</h4>';
+                html += '<p><strong>Consider these allowable spend down strategies:</strong></p>';
+                html += '<ul>';
+                
+                // Calculate recommended spend down amounts
+                const medicalSpend = Math.min(assetSpendDown * 0.3, 20000);
+                const homeSpend = Math.min(assetSpendDown * 0.25, 15000);
+                const debtSpend = Math.min(assetSpendDown * 0.2, 10000);
+                const burialSpend = Math.min(assetSpendDown * 0.1, 3000);
+                const remainingSpend = assetSpendDown - medicalSpend - homeSpend - debtSpend - burialSpend;
+                
+                if (medicalSpend > 0) html += `<li><strong>Uncovered medical expenses:</strong> ~$${medicalSpend.toLocaleString()}</li>`;
+                if (homeSpend > 0) html += `<li><strong>Home modifications/repairs:</strong> ~$${homeSpend.toLocaleString()}</li>`;
+                if (debtSpend > 0) html += `<li><strong>Pay down existing debt:</strong> ~$${debtSpend.toLocaleString()}</li>`;
+                if (burialSpend > 0) html += `<li><strong>Prepaid burial expenses:</strong> ~$${burialSpend.toLocaleString()}</li>`;
+                if (remainingSpend > 0) html += `<li><strong>Other allowable expenses:</strong> ~$${remainingSpend.toLocaleString()}</li>`;
+                
+                html += '</ul>';
+                html += '</div>';
+            }
+            
+            // Timeline and costs
+            html += '<div class="result-item">';
+            html += '<h4>Care Cost Analysis</h4>';
+            html += `<p><strong>Monthly Care Cost:</strong> $${monthlyCost.toLocaleString()}</p>`;
+            html += `<p><strong>Monthly Income Available for Care:</strong> $${Math.max(0, monthlyIncome - 50).toLocaleString()}</p>`; // Assuming $50 personal needs allowance
+            
+            const monthlyShortfall = Math.max(0, monthlyCost - Math.max(0, monthlyIncome - 50));
+            if (monthlyShortfall > 0) {
+                html += `<p><strong>Monthly Medicaid Need:</strong> <span class="amount">$${monthlyShortfall.toLocaleString()}</span></p>`;
+                
+                if (countableAssets > 0 && monthlyShortfall > 0) {
+                    const monthsUntilEligible = Math.ceil(assetSpendDown / monthlyShortfall);
+                    if (monthsUntilEligible <= 60) {
+                        html += `<p><strong>Estimated time until Medicaid eligible:</strong> ${monthsUntilEligible} months</p>`;
+                    }
+                }
+            }
+            html += '</div>';
+            
+            // Action items
+            html += '<div class="result-item">';
+            html += '<h4>Recommended Next Steps</h4>';
+            html += '<ol>';
+            html += '<li><strong>Consult an elder law attorney</strong> - Essential for Medicaid planning strategy</li>';
+            html += '<li><strong>Contact your state Medicaid office</strong> - Verify current eligibility requirements</li>';
+            html += '<li><strong>Gather financial documentation</strong> - Bank statements, property deeds, insurance policies</li>';
+            html += '<li><strong>Explore care options</strong> - Compare costs of different care settings</li>';
+            if (assetSpendDown > 0) {
+                html += '<li><strong>Create spend down plan</strong> - Work with professionals to spend down assets legally</li>';
+            }
+            html += '<li><strong>Apply for Medicaid</strong> - Begin application process with local office</li>';
+            html += '</ol>';
+            html += '</div>';
+            
+            // Important warnings
+            html += '<div class="alert">';
+            html += '<h4>Critical Reminders:</h4>';
+            html += '<ul>';
+            html += '<li><strong>5-Year Lookback:</strong> Asset transfers within 5 years may create penalty periods</li>';
+            html += '<li><strong>State Variations:</strong> Rules vary significantly between states</li>';
+            html += '<li><strong>Professional Guidance:</strong> Never make major financial decisions without expert advice</li>';
+            html += '<li><strong>Timing Matters:</strong> Start planning well before care is needed</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            return html;
+        }
+        
+        function resetForm() {
+            document.getElementById('medicaidForm').reset();
+            document.getElementById('results').classList.remove('show');
+        }
+        
+        function saveToDevice() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob
